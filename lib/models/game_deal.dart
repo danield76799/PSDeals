@@ -24,4 +24,28 @@ class GameDeal {
 
   /// The amount saved in the same currency, useful for UI hints.
   double get savings => (originalPrice - discountedPrice).clamp(0, originalPrice);
+
+  factory GameDeal.fromJson(Map<String, dynamic> json) => GameDeal(
+        id: (json['id'] ?? json['title'] ?? '').toString(),
+        title: (json['title'] ?? '').toString(),
+        originalPrice: (json['originalPrice'] as num?)?.toDouble() ?? 0,
+        discountedPrice: (json['discountedPrice'] as num?)?.toDouble() ?? 0,
+        discountPercentage: (json['discountPercentage'] as num?)?.toInt() ?? 0,
+        imageUrl: (json['imageUrl'] ?? '').toString(),
+        platform: (json['platform'] ?? 'PS5').toString(),
+        isPsPlusBonus: json['isPsPlusBonus'] as bool? ?? false,
+        description: (json['description'] ?? '').toString(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'originalPrice': originalPrice,
+        'discountedPrice': discountedPrice,
+        'discountPercentage': discountPercentage,
+        'imageUrl': imageUrl,
+        'platform': platform,
+        'isPsPlusBonus': isPsPlusBonus,
+        'description': description,
+      };
 }

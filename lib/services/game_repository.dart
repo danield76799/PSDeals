@@ -1,4 +1,7 @@
+import 'dart:convert';
 import 'dart:math';
+
+import 'package:http/http.dart' as http;
 
 import '../models/game_deal.dart';
 
@@ -6,25 +9,24 @@ import '../models/game_deal.dart';
 ///
 /// SOURCE STRATEGY
 /// ---------------
-/// The real PlayStation Store API (and PSDeals.net) require auth / are
-/// bot-protected and are not reachable from every environment. To keep the
-/// app honest and always usable we ship a curated pool of real PS titles.
-/// `fetchDeals()` returns a *daily-varying* slice of that pool (different
-/// deals + different discounts each day) so the catalog feels live instead
-/// of a hard-coded list.
+/// Live deals are scraped from the official PlayStation Store (NL) by a small
+/// proxy running on the user's VM (see server.js). [fetchDeals] calls that
+/// proxy over HTTP and maps the JSON into [GameDeal].
 ///
-/// To go fully live later, replace the body of [fetchDeals] with a real
-/// HTTP call to a deals feed and map the JSON into [GameDeal]. Everything
-/// downstream (Riverpod providers, UI) stays unchanged.
+/// If the proxy is unreachable (offline / VM down), we fall back to a curated
+/// pool of real PS titles so the app is always usable.
 class GameRepository {
+  /// Base URL of the deals proxy. Override with --dart-define=PROXY_URL=...
+  static const String proxyUrl =
+      String.fromEnvironment('PROXY_URL', defaultValue: 'http://13.140.136.172:8080');
+
   /// Discrete discount thresholds offered by the slider / quick chips.
   static const List<int> discountSteps = [50, 60, 70, 80, 90, 100];
 
   /// Currency symbol used across the UI (Euro).
   static const String currencySymbol = '€';
 
-  /// Full curated pool of real PlayStation titles.
-  /// Each entry: [title, platform, baseOriginalPrice].
+  /// Curated pool of real PlayStation titles — used as an offline fallback.
   static const List<_PoolEntry> _pool = [
     _PoolEntry('Marvel\'s Spider-Man 2', 'PS5', 79.99),
     _PoolEntry('Horizon Forbidden West', 'PS5', 69.99),
@@ -69,21 +71,38 @@ class GameRepository {
     _PoolEntry('Need for Speed Unbound', 'PS5', 69.99),
   ];
 
-  /// Returns the day-keyed deal list.
+  /// Fetches the current deal list.
   ///
-  /// A seed derived from the current date makes the selection (which titles
-  /// are on sale + their discount) change every day, while staying stable
-  /// within the same day. Sorting is by discount descending.
-  Future<List<GameDeal>> fetchDeals() async {
-    // await Future.delayed(const Duration(milliseconds: 300)); // simulate network
+  /// Tries the live proxy first; on any failure returns the offline fallback.
+  Future<List<GameDeal>> fetchDeals({String? platform, int minDiscount = 0}) async {
+    try {
+      final query = <String, String>{};
+      if (platform != null) query['platform'] = platform;
+      if (minDiscount > 0) query['minDiscount'] = minDiscount.toString();
+      final uri = Uri.parse(proxyUrl).replace(path: '/deals', queryParameters: query);
+      final resp = await http
+          .get(uri)
+          .timeout(const Duration(seconds: 30));
+      if (resp.statusCode == 200) {
+        final json = jsonDecode(resp.body) as Map<String, dynamic>;
+        final dealsJson = (json['deals'] as List?) ?? [];
+        final deals = dealsJson
+            .map((e) => GameDeal.fromJson(e as Map<String, dynamic>))
+            .toList();
+        if (deals.isNotEmpty) return deals;
+      }
+    } catch (e) {
+      // Fall through to offline fallback.
+    }
+    return _fallbackDeals();
+  }
+
+  /// Offline fallback: a daily-varying slice of the curated pool.
+  List<GameDeal> _fallbackDeals() {
     final now = DateTime.now();
     final daySeed = now.year * 1000 + now.month * 50 + now.day;
     final rng = Random(daySeed);
-
-    final pool = List<_PoolEntry>.from(_pool);
-    pool.shuffle(rng);
-
-    // Pick how many deals show today (18–24) and assign each a discount.
+    final pool = List<_PoolEntry>.from(_pool)..shuffle(rng);
     final count = 18 + rng.nextInt(7);
     final deals = <GameDeal>[];
     for (var i = 0; i < count && i < pool.length; i++) {
@@ -105,7 +124,6 @@ class GameRepository {
         ),
       );
     }
-
     deals.sort((a, b) => b.discountPercentage.compareTo(a.discountPercentage));
     return deals;
   }
