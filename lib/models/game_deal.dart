@@ -8,6 +8,7 @@ class GameDeal {
   final String imageUrl;
   final String platform; // e.g. "PS5", "PS4"
   final bool isPsPlusBonus;
+  final String description;
 
   const GameDeal({
     required this.id,
@@ -18,6 +19,7 @@ class GameDeal {
     required this.imageUrl,
     required this.platform,
     required this.isPsPlusBonus,
+    this.description = '',
   });
 
   /// The amount saved in the same currency, useful for UI hints.

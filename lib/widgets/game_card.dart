@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/game_deal.dart';
 import '../services/game_repository.dart';
 import '../theme/app_theme.dart';
+import 'game_detail_sheet.dart';
 
 /// A single game deal tile used inside the grid.
 class GameCard extends StatelessWidget {
@@ -16,7 +17,12 @@ class GameCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          // Hook for a detail screen / store launch.
+          showModalBottomSheet(
+            context: context,
+            backgroundColor: Colors.transparent,
+            isScrollControlled: true,
+            builder: (_) => GameDetailSheet(deal: deal),
+          );
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
