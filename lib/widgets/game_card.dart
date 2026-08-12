@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/game_deal.dart';
+import '../services/game_repository.dart';
 import '../theme/app_theme.dart';
 
 /// A single game deal tile used inside the grid.
@@ -156,7 +157,7 @@ class GameCard extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            '\$${deal.originalPrice.toStringAsFixed(2)}',
+                            '${GameRepository.currencySymbol}${deal.originalPrice.toStringAsFixed(2)}',
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 12,
@@ -169,7 +170,7 @@ class GameCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         Flexible(
                           child: Text(
-                            '\$${deal.discountedPrice.toStringAsFixed(2)}',
+                            '${GameRepository.currencySymbol}${deal.discountedPrice.toStringAsFixed(2)}',
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               fontSize: 16,

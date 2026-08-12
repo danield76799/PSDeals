@@ -37,7 +37,7 @@ class DiscountFilterHeader extends ConsumerWidget {
               const Icon(Icons.local_offer_rounded, color: AppTheme.accentLight, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Show deals with $minDiscount%+ discount',
+                'Toon deals met $minDiscount%+ korting',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontSize: 16,
                       color: AppTheme.onSurface,

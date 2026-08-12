@@ -25,7 +25,7 @@ class EmptyDealsView extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'No deals found for $minDiscount%+ discount',
+              'Geen deals gevonden voor $minDiscount%+ korting',
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 17,
@@ -35,7 +35,7 @@ class EmptyDealsView extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Try lowering the discount threshold to see more offers.',
+              'Verlaag de kortingsdrempel om meer aanbiedingen te zien.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 13, color: AppTheme.onSurfaceMuted),
             ),
@@ -44,7 +44,7 @@ class EmptyDealsView extends ConsumerWidget {
               onPressed: () =>
                   ref.read(minDiscountProvider.notifier).state = 50,
               icon: const Icon(Icons.restart_alt_rounded),
-              label: const Text('Reset to 50%'),
+              label: const Text('Reset naar 50%'),
               style: FilledButton.styleFrom(
                 backgroundColor: AppTheme.accent,
                 foregroundColor: Colors.white,

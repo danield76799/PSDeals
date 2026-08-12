@@ -114,7 +114,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('PlayStation Deals'), findsOneWidget);
-    expect(find.text('Show deals with 50%+ discount'), findsOneWidget);
+    expect(find.text('Toon deals met 50%+ korting'), findsOneWidget);
     // At least one game card is rendered from the mock dataset.
     expect(find.byType(GameCard), findsWidgets);
   });

@@ -3,11 +3,15 @@ import '../models/game_deal.dart';
 /// Provides access to PlayStation deal data.
 ///
 /// In a real app this would hit the PlayStation Store API (or a third-party
-/// deals aggregator). Here we serve a curated, realistic mock dataset so the
-/// UI, filtering and theming can be exercised end to end without network access.
+/// deals aggregator). Here we serve a curated, realistic mock dataset of
+/// European PS Store prices (EUR, VAT included) so the UI, filtering and
+/// theming can be exercised end to end without network access.
 class GameRepository {
   /// Discrete discount thresholds offered by the slider / quick chips.
   static const List<int> discountSteps = [50, 60, 70, 80, 90, 100];
+
+  /// Currency symbol used across the UI (Euro).
+  static const String currencySymbol = '€';
 
   /// Returns the full list of available deals (unfiltered).
   ///
@@ -33,8 +37,8 @@ class GameRepository {
     GameDeal(
       id: 'g1',
       title: 'Marvel\'s Spider-Man 2',
-      originalPrice: 69.99,
-      discountedPrice: 34.99,
+      originalPrice: 79.99,
+      discountedPrice: 39.99,
       discountPercentage: 50,
       imageUrl: 'https://picsum.photos/seed/spiderman2/300/400',
       platform: 'PS5',
@@ -43,8 +47,8 @@ class GameRepository {
     GameDeal(
       id: 'g2',
       title: 'Horizon Forbidden West',
-      originalPrice: 59.99,
-      discountedPrice: 23.99,
+      originalPrice: 69.99,
+      discountedPrice: 27.99,
       discountPercentage: 60,
       imageUrl: 'https://picsum.photos/seed/horizonfw/300/400',
       platform: 'PS5',
@@ -53,8 +57,8 @@ class GameRepository {
     GameDeal(
       id: 'g3',
       title: 'God of War Ragnarök',
-      originalPrice: 69.99,
-      discountedPrice: 20.99,
+      originalPrice: 79.99,
+      discountedPrice: 23.99,
       discountPercentage: 70,
       imageUrl: 'https://picsum.photos/seed/gowragnarok/300/400',
       platform: 'PS5',
@@ -63,8 +67,8 @@ class GameRepository {
     GameDeal(
       id: 'g4',
       title: 'The Last of Us Part I',
-      originalPrice: 69.99,
-      discountedPrice: 13.99,
+      originalPrice: 79.99,
+      discountedPrice: 15.99,
       discountPercentage: 80,
       imageUrl: 'https://picsum.photos/seed/tlou1/300/400',
       platform: 'PS5',
@@ -73,8 +77,8 @@ class GameRepository {
     GameDeal(
       id: 'g5',
       title: 'Ghost of Tsushima Director\'s Cut',
-      originalPrice: 59.99,
-      discountedPrice: 5.99,
+      originalPrice: 69.99,
+      discountedPrice: 6.99,
       discountPercentage: 90,
       imageUrl: 'https://picsum.photos/seed/ghosttsu/300/400',
       platform: 'PS5',
@@ -83,8 +87,8 @@ class GameRepository {
     GameDeal(
       id: 'g6',
       title: 'Ratchet & Clank: Rift Apart',
-      originalPrice: 59.99,
-      discountedPrice: 29.99,
+      originalPrice: 69.99,
+      discountedPrice: 34.99,
       discountPercentage: 50,
       imageUrl: 'https://picsum.photos/seed/ratchet/300/400',
       platform: 'PS5',
@@ -93,8 +97,8 @@ class GameRepository {
     GameDeal(
       id: 'g7',
       title: 'Elden Ring',
-      originalPrice: 59.99,
-      discountedPrice: 23.99,
+      originalPrice: 69.99,
+      discountedPrice: 27.99,
       discountPercentage: 60,
       imageUrl: 'https://picsum.photos/seed/eldenring/300/400',
       platform: 'PS5',
@@ -103,8 +107,8 @@ class GameRepository {
     GameDeal(
       id: 'g8',
       title: 'Demon\'s Souls',
-      originalPrice: 69.99,
-      discountedPrice: 17.49,
+      originalPrice: 79.99,
+      discountedPrice: 19.99,
       discountPercentage: 75,
       imageUrl: 'https://picsum.photos/seed/demonsouls/300/400',
       platform: 'PS5',
@@ -113,8 +117,8 @@ class GameRepository {
     GameDeal(
       id: 'g9',
       title: 'Returnal',
-      originalPrice: 69.99,
-      discountedPrice: 13.99,
+      originalPrice: 79.99,
+      discountedPrice: 15.99,
       discountPercentage: 80,
       imageUrl: 'https://picsum.photos/seed/returnal/300/400',
       platform: 'PS5',
@@ -183,8 +187,8 @@ class GameRepository {
     GameDeal(
       id: 'g16',
       title: 'Final Fantasy VII Rebirth',
-      originalPrice: 69.99,
-      discountedPrice: 27.99,
+      originalPrice: 79.99,
+      discountedPrice: 31.99,
       discountPercentage: 60,
       imageUrl: 'https://picsum.photos/seed/ff7rebirth/300/400',
       platform: 'PS5',
@@ -193,8 +197,8 @@ class GameRepository {
     GameDeal(
       id: 'g17',
       title: 'Hogwarts Legacy',
-      originalPrice: 59.99,
-      discountedPrice: 14.99,
+      originalPrice: 69.99,
+      discountedPrice: 17.49,
       discountPercentage: 75,
       imageUrl: 'https://picsum.photos/seed/hogwarts/300/400',
       platform: 'PS5',
@@ -203,8 +207,8 @@ class GameRepository {
     GameDeal(
       id: 'g18',
       title: 'Gran Turismo 7',
-      originalPrice: 69.99,
-      discountedPrice: 6.99,
+      originalPrice: 79.99,
+      discountedPrice: 7.99,
       discountPercentage: 90,
       imageUrl: 'https://picsum.photos/seed/gt7/300/400',
       platform: 'PS5',
