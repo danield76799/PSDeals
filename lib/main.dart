@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme/app_theme.dart';
 import 'widgets/deals_grid.dart';
 import 'widgets/discount_filter_header.dart';
+import 'widgets/shimmer_logo.dart';
 
 void main() {
   runApp(const ProviderScope(child: PlayStationDealsApp()));
@@ -37,15 +38,8 @@ class DealsHomePage extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
               child: Row(
                 children: [
-                  Container(
-                    width: 8,
-                    height: 22,
-                    decoration: BoxDecoration(
-                      color: AppTheme.accent,
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
+                  const ShimmerLogo(size: 44),
+                  const SizedBox(width: 12),
                   const Text(
                     'PlayStation Deals',
                     style: TextStyle(

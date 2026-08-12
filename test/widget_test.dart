@@ -111,7 +111,10 @@ void main() {
 
   testWidgets('App boots and renders deal cards', (WidgetTester tester) async {
     await tester.pumpWidget(const ProviderScope(child: PlayStationDealsApp()));
-    await tester.pumpAndSettle();
+    // The ShimmerLogo runs an infinite animation, so pumpAndSettle would
+    // never settle. A few pump() frames are enough to build the tree.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('PlayStation Deals'), findsOneWidget);
     expect(find.text('Toon deals met 50%+ korting'), findsOneWidget);
@@ -122,11 +125,12 @@ void main() {
   testWidgets('Default threshold shows multiple deals',
       (WidgetTester tester) async {
     await tester.pumpWidget(const ProviderScope(child: PlayStationDealsApp()));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     // At the default 50% filter there are many deals in the grid.
     expect(find.byType(GameCard), findsWidgets);
     // The empty-state reset button must NOT be present by default.
-    expect(find.text('Reset to 50%'), findsNothing);
+    expect(find.text('Reset naar 50%'), findsNothing);
   });
 }
