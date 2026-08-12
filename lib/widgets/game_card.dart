@@ -1,0 +1,192 @@
+import 'package:flutter/material.dart';
+
+import '../models/game_deal.dart';
+import '../theme/app_theme.dart';
+
+/// A single game deal tile used inside the grid.
+class GameCard extends StatelessWidget {
+  final GameDeal deal;
+
+  const GameCard({super.key, required this.deal});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () {
+          // Hook for a detail screen / store launch.
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Cover artwork ──
+            Expanded(
+              flex: 2,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.network(
+                    deal.imageUrl,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        color: AppTheme.surfaceAlt,
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      color: AppTheme.surfaceAlt,
+                      child: const Center(
+                        child: Icon(
+                          Icons.videogame_asset_rounded,
+                          color: AppTheme.onSurfaceMuted,
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Discount badge (top-left)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppTheme.discountGreen,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        '-${deal.discountPercentage}%',
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // PS Plus indicator (top-right)
+                  if (deal.isPsPlusBonus)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.psPlus,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.star_rounded, color: Colors.white, size: 12),
+                            SizedBox(width: 3),
+                            Text(
+                              'PS+',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            // ── Info section ──
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Platform tag
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppTheme.surfaceAlt,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        deal.platform,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                          color: AppTheme.accentLight,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Title (max 2 lines)
+                    Expanded(
+                      child: Text(
+                        deal.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppTheme.onSurface,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    // Prices
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            '\$${deal.originalPrice.toStringAsFixed(2)}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppTheme.onSurfaceMuted,
+                              decoration: TextDecoration.lineThrough,
+                              decorationColor: AppTheme.onSurfaceMuted,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text(
+                            '\$${deal.discountedPrice.toStringAsFixed(2)}',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
