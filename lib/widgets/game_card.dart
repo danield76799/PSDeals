@@ -161,27 +161,33 @@ class GameCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.baseline,
                       textBaseline: TextBaseline.alphabetic,
                       children: [
-                        Flexible(
-                          child: Text(
-                            '${GameRepository.currencySymbol}${deal.originalPrice.toStringAsFixed(2)}',
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppTheme.onSurfaceMuted,
-                              decoration: TextDecoration.lineThrough,
-                              decorationColor: AppTheme.onSurfaceMuted,
+                        if (deal.discountedPrice > 0) ...[
+                          Flexible(
+                            child: Text(
+                              '${GameRepository.currencySymbol}${deal.originalPrice.toStringAsFixed(2)}',
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppTheme.onSurfaceMuted,
+                                decoration: TextDecoration.lineThrough,
+                                decorationColor: AppTheme.onSurfaceMuted,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
+                          const SizedBox(width: 8),
+                        ],
                         Flexible(
                           child: Text(
-                            '${GameRepository.currencySymbol}${deal.discountedPrice.toStringAsFixed(2)}',
+                            deal.discountedPrice > 0
+                                ? '${GameRepository.currencySymbol}${deal.discountedPrice.toStringAsFixed(2)}'
+                                : 'Gratis',
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 16,
+                            style: TextStyle(
+                              fontSize: deal.discountedPrice > 0 ? 16 : 15,
                               fontWeight: FontWeight.w800,
-                              color: AppTheme.onSurface,
+                              color: deal.discountedPrice > 0
+                                  ? AppTheme.onSurface
+                                  : AppTheme.discountGreen,
                             ),
                           ),
                         ),

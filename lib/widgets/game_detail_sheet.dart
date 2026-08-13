@@ -111,19 +111,25 @@ class GameDetailSheet extends StatelessWidget {
                   children: [
                     _PriceRow(
                       label: 'Originele prijs',
-                      value: '$symbol${deal.originalPrice.toStringAsFixed(2)}',
-                      strikethrough: true,
+                      value: deal.discountedPrice > 0
+                          ? '$symbol${deal.originalPrice.toStringAsFixed(2)}'
+                          : '—',
+                      strikethrough: deal.discountedPrice > 0,
                     ),
                     const SizedBox(height: 8),
                     _PriceRow(
                       label: 'Nu',
-                      value: '$symbol${deal.discountedPrice.toStringAsFixed(2)}',
+                      value: deal.discountedPrice > 0
+                          ? '$symbol${deal.discountedPrice.toStringAsFixed(2)}'
+                          : 'Gratis',
                       highlight: true,
                     ),
                     const Divider(height: 20, color: AppTheme.divider),
                     _PriceRow(
                       label: 'Je bespaart',
-                      value: '$symbol${deal.savings.toStringAsFixed(2)}',
+                      value: deal.discountedPrice > 0
+                          ? '$symbol${deal.savings.toStringAsFixed(2)}'
+                          : '$symbol${deal.originalPrice.toStringAsFixed(2)}',
                     ),
                   ],
                 ),

@@ -46,7 +46,7 @@ class GameRepository {
     _PoolEntry('Final Fantasy VII Rebirth', 'PS5', 79.99),
     _PoolEntry('Hogwarts Legacy', 'PS5', 69.99),
     _PoolEntry('Gran Turismo 7', 'PS5', 79.99),
-    _PoolEntry('Hitman World of Assassination', 'PS5', 39.99),
+    _PoolEntry('Hitman World of Assassination', 'PS5', 39.99, isFree: true),
     _PoolEntry('God of War (2018)', 'PS4', 39.99),
     _PoolEntry('Uncharted: Legacy of Thieves Collection', 'PS5', 49.99),
     _PoolEntry('Spider-Man: Miles Morales', 'PS5', 59.99),
@@ -107,9 +107,12 @@ class GameRepository {
     final deals = <GameDeal>[];
     for (var i = 0; i < count && i < pool.length; i++) {
       final entry = pool[i];
-      final discount = discountSteps[rng.nextInt(discountSteps.length)];
+      final discount = entry.isFree
+          ? 100
+          : discountSteps[rng.nextInt(discountSteps.length)];
       final original = entry.basePrice;
-      final discounted = _round2(original * (1 - discount / 100));
+      final discounted =
+          entry.isFree ? 0.0 : _round2(original * (1 - discount / 100));
       deals.add(
         GameDeal(
           id: 'd${daySeed}_$i',
@@ -120,7 +123,7 @@ class GameRepository {
           imageUrl: 'https://picsum.photos/seed/'
               '${entry.title.replaceAll(RegExp(r'[^a-z0-9]'), '').toLowerCase()}/300/400',
           platform: entry.platform,
-          isPsPlusBonus: rng.nextBool(),
+          isPsPlusBonus: entry.isFree || rng.nextBool(),
         ),
       );
     }
@@ -146,6 +149,7 @@ class _PoolEntry {
   final String title;
   final String platform;
   final double basePrice;
+  final bool isFree;
 
-  const _PoolEntry(this.title, this.platform, this.basePrice);
+  const _PoolEntry(this.title, this.platform, this.basePrice, {this.isFree = false});
 }
