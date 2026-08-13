@@ -82,7 +82,7 @@ class GameRepository {
       final uri = Uri.parse(proxyUrl).replace(path: '/deals', queryParameters: query);
       final resp = await http
           .get(uri)
-          .timeout(const Duration(seconds: 30));
+          .timeout(const Duration(seconds: 15));
       if (resp.statusCode == 200) {
         final json = jsonDecode(resp.body) as Map<String, dynamic>;
         final dealsJson = (json['deals'] as List?) ?? [];
