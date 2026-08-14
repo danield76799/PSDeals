@@ -181,6 +181,17 @@ class GameCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
+                    // TEMP DEBUG: show raw price values from the deal object
+                    Text(
+                      'DBG €${deal.originalPrice.toStringAsFixed(2)} -> €${deal.discountedPrice.toStringAsFixed(2)} (-${deal.discountPercentage}%)',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 8,
+                        color: AppTheme.discountGreen,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
                     // TEMP DEBUG: show image URL so we can see what loads
                     Text(
                       deal.imageUrl.isEmpty
