@@ -70,35 +70,49 @@ class DealsGrid extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final filteredAsync = ref.watch(filteredDealsProvider);
 
-    return filteredAsync.when(
-      loading: () => const Center(
-        child: CircularProgressIndicator(color: AppTheme.accentLight),
-      ),
-      error: (e, _) => Center(
-        child: Text(
-          'Failed to load deals.\n$e',
-          textAlign: TextAlign.center,
-          style: const TextStyle(color: AppTheme.onSurfaceMuted),
-        ),
-      ),
-      data: (deals) {
-        if (deals.isEmpty) return const EmptyDealsView();
-
-        final crossAxisCount =
-            MediaQuery.of(context).size.width >= 720 ? 4 : 2;
-
-        return GridView.builder(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            childAspectRatio: 0.66,
-          ),
-          itemCount: deals.length,
-          itemBuilder: (context, index) => GameCard(deal: deals[index]),
-        );
+    return RefreshIndicator(
+      color: AppTheme.accentLight,
+      onRefresh: () async {
+        // Bypass the proxy cache so we get fresh deals, then refresh.
+        // Riverpod re-derives filteredDealsProvider too.
+        ref.read(forceRefreshProvider.notifier).state = true;
+        try {
+          ref.invalidate(dealsProvider);
+          await ref.read(dealsProvider.future);
+        } finally {
+          ref.read(forceRefreshProvider.notifier).state = false;
+        }
       },
+      child: filteredAsync.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppTheme.accentLight),
+        ),
+        error: (e, _) => Center(
+          child: Text(
+            'Failed to load deals.\n$e',
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: AppTheme.onSurfaceMuted),
+          ),
+        ),
+        data: (deals) {
+          if (deals.isEmpty) return const EmptyDealsView();
+
+          final crossAxisCount =
+              MediaQuery.of(context).size.width >= 720 ? 4 : 2;
+
+          return GridView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 0.66,
+            ),
+            itemCount: deals.length,
+            itemBuilder: (context, index) => GameCard(deal: deals[index]),
+          );
+        },
+      ),
     );
   }
 }

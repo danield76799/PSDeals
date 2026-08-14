@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'theme/app_theme.dart';
+import 'providers/deal_providers.dart';
 import 'widgets/deals_grid.dart';
 import 'widgets/discount_filter_header.dart';
 import 'widgets/shimmer_logo.dart';
@@ -24,11 +25,11 @@ class PlayStationDealsApp extends StatelessWidget {
   }
 }
 
-class DealsHomePage extends StatelessWidget {
+class DealsHomePage extends ConsumerWidget {
   const DealsHomePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -50,6 +51,21 @@ class DealsHomePage extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.refresh_rounded,
+                        color: AppTheme.onSurfaceMuted),
+                    tooltip: 'Ververs deals',
+                    onPressed: () async {
+                      // Bypass the proxy cache so we get fresh deals, then refresh.
+                      ref.read(forceRefreshProvider.notifier).state = true;
+                      try {
+                        ref.invalidate(dealsProvider);
+                        await ref.read(dealsProvider.future);
+                      } finally {
+                        ref.read(forceRefreshProvider.notifier).state = false;
+                      }
+                    },
+                  ),
                   const Icon(Icons.notifications_none_rounded,
                       color: AppTheme.onSurfaceMuted),
                 ],

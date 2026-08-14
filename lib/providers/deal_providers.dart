@@ -4,10 +4,20 @@ import '../models/game_deal.dart';
 import '../services/game_repository.dart';
 
 /// Async provider that loads the full (unfiltered) deal list once.
-final dealsProvider = FutureProvider<List<GameDeal>>((ref) async {
+///
+/// Reads [forceRefreshProvider]; when `true` the proxy cache is bypassed so a
+/// manual refresh always returns fresh deals. The UI flips it back to `false`
+/// after calling `ref.refresh(dealsProvider)`.
+final dealsProvider = FutureProvider.autoDispose<List<GameDeal>>((ref) async {
   final repo = GameRepository();
-  return repo.fetchDeals();
+  final force = ref.watch(forceRefreshProvider);
+  return repo.fetchDeals(force: force);
 });
+
+/// When `true`, the next [dealsProvider] fetch bypasses the proxy cache.
+/// Flip to `true` immediately before `ref.refresh(dealsProvider)`, then back
+/// to `false` once the refresh future completes.
+final forceRefreshProvider = StateProvider<bool>((ref) => false);
 
 /// Holds the minimum discount threshold selected via slider / chips.
 ///

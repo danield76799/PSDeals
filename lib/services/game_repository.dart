@@ -74,11 +74,17 @@ class GameRepository {
   /// Fetches the current deal list.
   ///
   /// Tries the live proxy first; on any failure returns the offline fallback.
-  Future<List<GameDeal>> fetchDeals({String? platform, int minDiscount = 0}) async {
+  /// [force] bypasses the proxy's 10-minute cache (used by refresh actions).
+  Future<List<GameDeal>> fetchDeals({
+    String? platform,
+    int minDiscount = 0,
+    bool force = false,
+  }) async {
     try {
       final query = <String, String>{};
       if (platform != null) query['platform'] = platform;
       if (minDiscount > 0) query['minDiscount'] = minDiscount.toString();
+      if (force) query['force'] = '1';
       final uri = Uri.parse(proxyUrl).replace(path: '/deals', queryParameters: query);
       final resp = await http
           .get(uri)
