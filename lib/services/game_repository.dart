@@ -105,7 +105,9 @@ class GameRepository {
         final query = <String, String>{};
         if (platform != null) query['platform'] = platform;
         if (minDiscount > 0) query['minDiscount'] = minDiscount.toString();
-        if (force) query['force'] = '1';
+        // Force a fresh scrape on retry attempts so a transient empty
+        // scrape (PS Store slow to render) is bypassed.
+        if (force || attempt > 0) query['force'] = '1';
         final uri = Uri.parse(proxyUrl).replace(path: '/deals', queryParameters: query);
         final resp = await http
             .get(uri)
@@ -120,7 +122,12 @@ class GameRepository {
             return DealsResult(deals: deals, isLive: true);
           }
         }
-        // Empty deals (HTTP 200 but no usable list) — surface the body.
+        // Empty deals (HTTP 200 but no usable list). The proxy now falls back
+        // to its last good cache, so a retry usually resolves it.
+        if (attempt < retries) {
+          await Future.delayed(const Duration(seconds: 2));
+          continue;
+        }
         final snippet = resp.body.length > 200
             ? '${resp.body.substring(0, 200)}...'
             : resp.body;
