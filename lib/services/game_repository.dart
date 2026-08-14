@@ -92,35 +92,55 @@ class GameRepository {
   ///
   /// Tries the live proxy first; on any failure returns the offline fallback
   /// (with [DealsResult.isLive] = false). [force] bypasses the proxy cache.
+  /// Retries up to [retries] times to survive a slow first scrape / transient
+  /// network blip on mobile connections.
   Future<DealsResult> fetchDeals({
     String? platform,
     int minDiscount = 0,
     bool force = false,
+    int retries = 2,
   }) async {
-    try {
-      final query = <String, String>{};
-      if (platform != null) query['platform'] = platform;
-      if (minDiscount > 0) query['minDiscount'] = minDiscount.toString();
-      if (force) query['force'] = '1';
-      final uri = Uri.parse(proxyUrl).replace(path: '/deals', queryParameters: query);
-      final resp = await http
-          .get(uri)
-          .timeout(const Duration(seconds: 35));
-      if (resp.statusCode == 200) {
-        final json = jsonDecode(resp.body) as Map<String, dynamic>;
-        final dealsJson = (json['deals'] as List?) ?? [];
-        final deals = dealsJson
-            .map((e) => GameDeal.fromJson(e as Map<String, dynamic>))
-            .toList();
-        if (deals.isNotEmpty) {
-          return DealsResult(deals: deals, isLive: true);
+    Exception? lastErr;
+    for (var attempt = 0; attempt <= retries; attempt++) {
+      try {
+        final query = <String, String>{};
+        if (platform != null) query['platform'] = platform;
+        if (minDiscount > 0) query['minDiscount'] = minDiscount.toString();
+        if (force) query['force'] = '1';
+        final uri = Uri.parse(proxyUrl).replace(path: '/deals', queryParameters: query);
+        final resp = await http
+            .get(uri)
+            .timeout(const Duration(seconds: 45));
+        if (resp.statusCode == 200) {
+          final json = jsonDecode(resp.body) as Map<String, dynamic>;
+          final dealsJson = (json['deals'] as List?) ?? [];
+          final deals = dealsJson
+              .map((e) => GameDeal.fromJson(e as Map<String, dynamic>))
+              .toList();
+          if (deals.isNotEmpty) {
+            return DealsResult(deals: deals, isLive: true);
+          }
+        }
+        // Proxy returned empty / non-200 — fall back.
+        return DealsResult(
+          deals: _fallbackDeals(),
+          isLive: false,
+          error: 'Proxy returned no deals (HTTP ${resp.statusCode})',
+        );
+      } catch (e) {
+        lastErr = e is Exception ? e : Exception(e.toString());
+        // Small backoff before retrying.
+        if (attempt < retries) {
+          await Future.delayed(const Duration(seconds: 2));
+          continue;
         }
       }
-      // Proxy returned empty / non-200 — fall back.
-      return DealsResult(deals: _fallbackDeals(), isLive: false, error: 'Proxy returned no deals');
-    } catch (e) {
-      return DealsResult(deals: _fallbackDeals(), isLive: false, error: e.toString());
     }
+    return DealsResult(
+      deals: _fallbackDeals(),
+      isLive: false,
+      error: lastErr?.toString() ?? 'Unknown error',
+    );
   }
 
   /// Offline fallback: a daily-varying slice of the curated pool.
