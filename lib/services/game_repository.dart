@@ -5,6 +5,22 @@ import 'package:http/http.dart' as http;
 
 import '../models/game_deal.dart';
 
+/// Result of a [GameRepository.fetchDeals] call.
+///
+/// [isLive] is `true` when the deals came from the live proxy; `false` means
+/// the offline curated pool was used (proxy unreachable or returned nothing).
+class DealsResult {
+  final List<GameDeal> deals;
+  final bool isLive;
+  final String? error;
+
+  const DealsResult({
+    required this.deals,
+    required this.isLive,
+    this.error,
+  });
+}
+
 /// Provides access to PlayStation deal data.
 ///
 /// SOURCE STRATEGY
@@ -14,7 +30,8 @@ import '../models/game_deal.dart';
 /// proxy over HTTP and maps the JSON into [GameDeal].
 ///
 /// If the proxy is unreachable (offline / VM down), we fall back to a curated
-/// pool of real PS titles so the app is always usable.
+/// pool of real PS titles so the app still shows something — but it is clearly
+/// marked [DealsResult.isLive] = false so the UI can warn the user.
 class GameRepository {
   /// Base URL of the deals proxy. Override with --dart-define=PROXY_URL=...
   static const String proxyUrl =
@@ -73,9 +90,9 @@ class GameRepository {
 
   /// Fetches the current deal list.
   ///
-  /// Tries the live proxy first; on any failure returns the offline fallback.
-  /// [force] bypasses the proxy's 10-minute cache (used by refresh actions).
-  Future<List<GameDeal>> fetchDeals({
+  /// Tries the live proxy first; on any failure returns the offline fallback
+  /// (with [DealsResult.isLive] = false). [force] bypasses the proxy cache.
+  Future<DealsResult> fetchDeals({
     String? platform,
     int minDiscount = 0,
     bool force = false,
@@ -95,15 +112,19 @@ class GameRepository {
         final deals = dealsJson
             .map((e) => GameDeal.fromJson(e as Map<String, dynamic>))
             .toList();
-        if (deals.isNotEmpty) return deals;
+        if (deals.isNotEmpty) {
+          return DealsResult(deals: deals, isLive: true);
+        }
       }
+      // Proxy returned empty / non-200 — fall back.
+      return DealsResult(deals: _fallbackDeals(), isLive: false, error: 'Proxy returned no deals');
     } catch (e) {
-      // Fall through to offline fallback.
+      return DealsResult(deals: _fallbackDeals(), isLive: false, error: e.toString());
     }
-    return _fallbackDeals();
   }
 
   /// Offline fallback: a daily-varying slice of the curated pool.
+  /// Prices are ILLUSTRATIVE (not live) — the UI must show this is offline.
   List<GameDeal> _fallbackDeals() {
     final now = DateTime.now();
     final daySeed = now.year * 1000 + now.month * 50 + now.day;

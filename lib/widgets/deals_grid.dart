@@ -5,6 +5,35 @@ import '../providers/deal_providers.dart';
 import '../theme/app_theme.dart';
 import 'game_card.dart';
 
+/// Banner shown when the live proxy could not be reached and we are showing
+/// the (illustrative) offline fallback data.
+class _OfflineBanner extends StatelessWidget {
+  final String? error;
+  const _OfflineBanner({this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.orange.shade900.withValues(alpha: 0.5),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          const Icon(Icons.cloud_off_rounded, color: Colors.orange, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              error != null && error!.isNotEmpty
+                  ? 'Proxy niet bereikbaar: $error'
+                  : 'Offline — getoonde prijzen zijn indicatief, niet live.',
+              style: const TextStyle(fontSize: 12, color: Colors.orange),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Empty-state widget shown when no deals match the current threshold.
 class EmptyDealsView extends ConsumerWidget {
   const EmptyDealsView({super.key});
@@ -68,13 +97,14 @@ class DealsGrid extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final dealsAsync = ref.watch(dealsProvider);
     final filteredAsync = ref.watch(filteredDealsProvider);
+
+    final bool isOffline = dealsAsync.valueOrNull?.isLive == false;
 
     return RefreshIndicator(
       color: AppTheme.accentLight,
       onRefresh: () async {
-        // Bypass the proxy cache so we get fresh deals, then refresh.
-        // Riverpod re-derives filteredDealsProvider too.
         ref.read(forceRefreshProvider.notifier).state = true;
         try {
           ref.invalidate(dealsProvider);
@@ -83,35 +113,45 @@ class DealsGrid extends ConsumerWidget {
           ref.read(forceRefreshProvider.notifier).state = false;
         }
       },
-      child: filteredAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppTheme.accentLight),
-        ),
-        error: (e, _) => Center(
-          child: Text(
-            'Failed to load deals.\n$e',
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: AppTheme.onSurfaceMuted),
-          ),
-        ),
-        data: (deals) {
-          if (deals.isEmpty) return const EmptyDealsView();
-
-          final crossAxisCount =
-              MediaQuery.of(context).size.width >= 720 ? 4 : 2;
-
-          return GridView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 0.66,
+      child: Column(
+        children: [
+          if (isOffline)
+            _OfflineBanner(
+              error: dealsAsync.valueOrNull?.error,
             ),
-            itemCount: deals.length,
-            itemBuilder: (context, index) => GameCard(deal: deals[index]),
-          );
-        },
+          Expanded(
+            child: filteredAsync.when(
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: AppTheme.accentLight),
+              ),
+              error: (e, _) => Center(
+                child: Text(
+                  'Failed to load deals.\n$e',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppTheme.onSurfaceMuted),
+                ),
+              ),
+              data: (deals) {
+                if (deals.isEmpty) return const EmptyDealsView();
+
+                final crossAxisCount =
+                    MediaQuery.of(context).size.width >= 720 ? 4 : 2;
+
+                return GridView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    childAspectRatio: 0.66,
+                  ),
+                  itemCount: deals.length,
+                  itemBuilder: (context, index) => GameCard(deal: deals[index]),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

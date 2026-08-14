@@ -6,9 +6,8 @@ import '../services/game_repository.dart';
 /// Async provider that loads the full (unfiltered) deal list once.
 ///
 /// Reads [forceRefreshProvider]; when `true` the proxy cache is bypassed so a
-/// manual refresh always returns fresh deals. The UI flips it back to `false`
-/// after calling `ref.refresh(dealsProvider)`.
-final dealsProvider = FutureProvider.autoDispose<List<GameDeal>>((ref) async {
+/// manual refresh always returns fresh deals.
+final dealsProvider = FutureProvider.autoDispose<DealsResult>((ref) async {
   final repo = GameRepository();
   final force = ref.watch(forceRefreshProvider);
   return repo.fetchDeals(force: force);
@@ -29,7 +28,7 @@ final minDiscountProvider = StateProvider<int>((ref) => 50);
 final filteredDealsProvider = Provider<AsyncValue<List<GameDeal>>>((ref) {
   final dealsAsync = ref.watch(dealsProvider);
   final minDiscount = ref.watch(minDiscountProvider);
-  return dealsAsync.whenData((deals) {
-    return GameRepository().filterByDiscount(deals, minDiscount: minDiscount);
+  return dealsAsync.whenData((result) {
+    return GameRepository().filterByDiscount(result.deals, minDiscount: minDiscount);
   });
 });
