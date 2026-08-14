@@ -26,18 +26,6 @@ class GameRepository {
   /// Currency symbol used across the UI (Euro).
   static const String currencySymbol = '€';
 
-  /// Wraps an upstream image URL so it is fetched through the deals proxy.
-  /// The PS image CDN (image.api.playstation.com) blocks hotlinking from
-  /// arbitrary clients, so we route the bytes through our own proxy instead.
-  static String proxiedImageUrl(String url) {
-    if (url.isEmpty) return '';
-    final uri = Uri.parse(proxyUrl).replace(
-      path: '/image',
-      queryParameters: {'url': url},
-    );
-    return uri.toString();
-  }
-
   /// Curated pool of real PlayStation titles — used as an offline fallback.
   static const List<_PoolEntry> _pool = [
     _PoolEntry('Marvel\'s Spider-Man 2', 'PS5', 79.99),
