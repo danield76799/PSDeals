@@ -50,20 +50,31 @@ class GameDetailSheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
                 child: AspectRatio(
                   aspectRatio: 3 / 4,
-                  child: Image.network(
-                    deal.imageUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-                      color: AppTheme.surfaceAlt,
-                      child: const Center(
-                        child: Icon(
-                          Icons.videogame_asset_rounded,
-                          color: AppTheme.onSurfaceMuted,
-                          size: 56,
+                  child: deal.imageUrl.isEmpty
+                      ? Container(
+                          color: AppTheme.surfaceAlt,
+                          child: const Center(
+                            child: Icon(
+                              Icons.videogame_asset_rounded,
+                              color: AppTheme.onSurfaceMuted,
+                              size: 56,
+                            ),
+                          ),
+                        )
+                      : Image.network(
+                          deal.imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Container(
+                            color: AppTheme.surfaceAlt,
+                            child: const Center(
+                              child: Icon(
+                                Icons.videogame_asset_rounded,
+                                color: AppTheme.onSurfaceMuted,
+                                size: 56,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
                 ),
               ),
               const SizedBox(height: 18),

@@ -88,7 +88,7 @@ class GameRepository {
       final uri = Uri.parse(proxyUrl).replace(path: '/deals', queryParameters: query);
       final resp = await http
           .get(uri)
-          .timeout(const Duration(seconds: 15));
+          .timeout(const Duration(seconds: 35));
       if (resp.statusCode == 200) {
         final json = jsonDecode(resp.body) as Map<String, dynamic>;
         final dealsJson = (json['deals'] as List?) ?? [];
@@ -126,8 +126,9 @@ class GameRepository {
           originalPrice: original,
           discountedPrice: discounted,
           discountPercentage: discount,
-          imageUrl: 'https://picsum.photos/seed/'
-              '${entry.title.replaceAll(RegExp(r'[^a-z0-9]'), '').toLowerCase()}/300/400',
+          // No external image for offline fallback — the card shows the
+          // game icon instead of a broken/blocked remote image.
+          imageUrl: '',
           platform: entry.platform,
           isPsPlusBonus: entry.isFree || rng.nextBool(),
         ),

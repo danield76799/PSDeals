@@ -11,6 +11,53 @@ class GameCard extends StatelessWidget {
 
   const GameCard({super.key, required this.deal});
 
+  Widget _cover(BuildContext context) {
+    if (deal.imageUrl.isEmpty) {
+      return Container(
+        color: AppTheme.surfaceAlt,
+        child: const Center(
+          child: Icon(
+            Icons.videogame_asset_rounded,
+            color: AppTheme.onSurfaceMuted,
+            size: 40,
+          ),
+        ),
+      );
+    }
+    return Image.network(
+      deal.imageUrl,
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(
+          color: AppTheme.surfaceAlt,
+          child: const Center(
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) {
+        debugPrint('[ImgError] ${deal.imageUrl} -> $error');
+        return Container(
+          color: AppTheme.surfaceAlt,
+          padding: const EdgeInsets.all(4),
+          child: Center(
+            child: Text(
+              'IMG FAIL\n$error',
+              textAlign: TextAlign.center,
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 8,
+                color: AppTheme.onSurfaceMuted,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -33,38 +80,7 @@ class GameCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.network(
-                    deal.imageUrl,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return Container(
-                        color: AppTheme.surfaceAlt,
-                        child: const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      debugPrint('[ImgError] ${deal.imageUrl} -> $error');
-                      return Container(
-                        color: AppTheme.surfaceAlt,
-                        padding: const EdgeInsets.all(4),
-                        child: Center(
-                          child: Text(
-                            'IMG FAIL\n$error',
-                            textAlign: TextAlign.center,
-                            maxLines: 4,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 8,
-                              color: AppTheme.onSurfaceMuted,
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                  _cover(context),
                   // Discount badge (top-left)
                   Positioned(
                     top: 8,
