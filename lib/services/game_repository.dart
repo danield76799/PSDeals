@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 
 import '../models/game_deal.dart';
 
-/// Result of a [GameRepository.fetchDeals] call.
 ///
 /// [isLive] is `true` when the deals came from the live proxy; `false` means
 /// the offline curated pool was used (proxy unreachable or returned nothing).
@@ -136,10 +135,11 @@ class GameRepository {
         }
       }
     }
+    final errStr = lastErr?.toString() ?? 'Unknown error';
     return DealsResult(
       deals: _fallbackDeals(),
       isLive: false,
-      error: lastErr?.toString() ?? 'Unknown error',
+      error: errStr,
     );
   }
 

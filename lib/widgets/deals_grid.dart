@@ -125,14 +125,33 @@ class DealsGrid extends ConsumerWidget {
                 child: CircularProgressIndicator(color: AppTheme.accentLight),
               ),
               error: (e, _) => Center(
-                child: Text(
-                  'Failed to load deals.\n$e',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppTheme.onSurfaceMuted),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(
+                    'Fout bij laden:\n$e',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: AppTheme.onSurfaceMuted),
+                  ),
                 ),
               ),
               data: (deals) {
-                if (deals.isEmpty) return const EmptyDealsView();
+                if (deals.isEmpty) {
+                  // Even if filtered list is empty, surface a proxy error if any.
+                  final err = dealsAsync.valueOrNull?.error;
+                  if (err != null && err.isNotEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                          'Proxy niet bereikbaar:\n$err',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.orange, fontSize: 13),
+                        ),
+                      ),
+                    );
+                  }
+                  return const EmptyDealsView();
+                }
 
                 final crossAxisCount =
                     MediaQuery.of(context).size.width >= 720 ? 4 : 2;
