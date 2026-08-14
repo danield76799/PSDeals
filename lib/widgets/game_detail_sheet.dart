@@ -51,7 +51,7 @@ class GameDetailSheet extends StatelessWidget {
                 child: AspectRatio(
                   aspectRatio: 3 / 4,
                   child: Image.network(
-                    deal.imageUrl,
+                    GameRepository.proxiedImageUrl(deal.imageUrl),
                     fit: BoxFit.cover,
                     errorBuilder: (_, _, _) => Container(
                       color: AppTheme.surfaceAlt,

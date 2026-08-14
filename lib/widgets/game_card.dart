@@ -34,7 +34,7 @@ class GameCard extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   Image.network(
-                    deal.imageUrl,
+                    GameRepository.proxiedImageUrl(deal.imageUrl),
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;
