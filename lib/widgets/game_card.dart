@@ -158,6 +158,21 @@ class GameCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 4),
+                    // TEMP DEBUG: show image URL so we can see what loads
+                    Text(
+                      deal.imageUrl.isEmpty
+                          ? '[NO IMG URL]'
+                          : (deal.imageUrl.length > 42
+                              ? '${deal.imageUrl.substring(0, 42)}…'
+                              : deal.imageUrl),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 8,
+                        color: AppTheme.onSurfaceMuted,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     // Prices
                     Row(
