@@ -45,16 +45,19 @@ class GameCard extends StatelessWidget {
                         ),
                       );
                     },
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: AppTheme.surfaceAlt,
-                      child: const Center(
-                        child: Icon(
-                          Icons.videogame_asset_rounded,
-                          color: AppTheme.onSurfaceMuted,
-                          size: 40,
+                    errorBuilder: (context, error, stackTrace) {
+                      debugPrint('[ImgError] ${deal.imageUrl} -> $error');
+                      return Container(
+                        color: AppTheme.surfaceAlt,
+                        child: const Center(
+                          child: Icon(
+                            Icons.videogame_asset_rounded,
+                            color: AppTheme.onSurfaceMuted,
+                            size: 40,
+                          ),
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
                   // Discount badge (top-left)
                   Positioned(
