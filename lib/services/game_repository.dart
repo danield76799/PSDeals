@@ -120,11 +120,14 @@ class GameRepository {
             return DealsResult(deals: deals, isLive: true);
           }
         }
-        // Proxy returned empty / non-200 — fall back.
+        // Empty deals (HTTP 200 but no usable list) — surface the body.
+        final snippet = resp.body.length > 200
+            ? '${resp.body.substring(0, 200)}...'
+            : resp.body;
         return DealsResult(
           deals: _fallbackDeals(),
           isLive: false,
-          error: 'Proxy returned no deals (HTTP ${resp.statusCode})',
+          error: 'Proxy returned no deals (HTTP 200). Body: $snippet',
         );
       } catch (e) {
         lastErr = e is Exception ? e : Exception(e.toString());
