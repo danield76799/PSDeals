@@ -44,4 +44,8 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+
+    <!-- Required for all network access (deals proxy + PS CDN images). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 </manifest>
