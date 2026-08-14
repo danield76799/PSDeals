@@ -49,11 +49,17 @@ class GameCard extends StatelessWidget {
                       debugPrint('[ImgError] ${deal.imageUrl} -> $error');
                       return Container(
                         color: AppTheme.surfaceAlt,
-                        child: const Center(
-                          child: Icon(
-                            Icons.videogame_asset_rounded,
-                            color: AppTheme.onSurfaceMuted,
-                            size: 40,
+                        padding: const EdgeInsets.all(4),
+                        child: Center(
+                          child: Text(
+                            'IMG FAIL\n$error',
+                            textAlign: TextAlign.center,
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 8,
+                              color: AppTheme.onSurfaceMuted,
+                            ),
                           ),
                         ),
                       );
