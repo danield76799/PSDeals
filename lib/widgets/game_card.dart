@@ -229,16 +229,25 @@ class GameCard extends StatelessWidget {
                         ],
                         Flexible(
                           child: Text(
-                            deal.discountedPrice > 0
-                                ? '${GameRepository.currencySymbol}${deal.discountedPrice.toStringAsFixed(2)}'
-                                : 'Gratis',
+                            // PS Plus members get the game free when psPlusPrice == 0.
+                            deal.isPsPlusBonus && (deal.psPlusPrice ?? -1) == 0
+                                ? 'PS+ Gratis'
+                                : (deal.discountedPrice > 0
+                                    ? '${GameRepository.currencySymbol}${deal.discountedPrice.toStringAsFixed(2)}'
+                                    : 'Gratis'),
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: deal.discountedPrice > 0 ? 16 : 15,
+                              fontSize: deal.isPsPlusBonus &&
+                                      (deal.psPlusPrice ?? -1) == 0
+                                  ? 14
+                                  : (deal.discountedPrice > 0 ? 16 : 15),
                               fontWeight: FontWeight.w800,
-                              color: deal.discountedPrice > 0
-                                  ? AppTheme.onSurface
-                                  : AppTheme.discountGreen,
+                              color: deal.isPsPlusBonus &&
+                                      (deal.psPlusPrice ?? -1) == 0
+                                  ? AppTheme.psPlus
+                                  : (deal.discountedPrice > 0
+                                      ? AppTheme.onSurface
+                                      : AppTheme.discountGreen),
                             ),
                           ),
                         ),

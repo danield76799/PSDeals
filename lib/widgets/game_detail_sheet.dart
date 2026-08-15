@@ -105,7 +105,9 @@ class GameDetailSheet extends StatelessWidget {
                   ),
                   if (deal.isPsPlusBonus)
                     _InfoChip(
-                      label: 'PS+ Bonus',
+                      label: (deal.psPlusPrice ?? -1) == 0
+                          ? 'PS+ Gratis'
+                          : 'PS+ Bonus',
                       color: AppTheme.psPlus,
                     ),
                 ],
@@ -135,6 +137,15 @@ class GameDetailSheet extends StatelessWidget {
                           : 'Gratis',
                       highlight: true,
                     ),
+                    if (deal.psPlusPrice != null)
+                      _PriceRow(
+                        label: 'PS Plus (Extra/Premium)',
+                        value: (deal.psPlusPrice ?? 0) == 0
+                            ? 'Gratis'
+                            : '$symbol${deal.psPlusPrice!.toStringAsFixed(2)}',
+                        highlight: true,
+                        highlightColor: AppTheme.psPlus,
+                      ),
                     const Divider(height: 20, color: AppTheme.divider),
                     _PriceRow(
                       label: 'Je bespaart',
@@ -212,12 +223,14 @@ class _PriceRow extends StatelessWidget {
   final String value;
   final bool strikethrough;
   final bool highlight;
+  final Color? highlightColor;
 
   const _PriceRow({
     required this.label,
     required this.value,
     this.strikethrough = false,
     this.highlight = false,
+    this.highlightColor,
   });
 
   @override
@@ -237,7 +250,9 @@ class _PriceRow extends StatelessWidget {
           style: TextStyle(
             fontSize: highlight ? 22 : 16,
             fontWeight: FontWeight.w800,
-            color: highlight ? AppTheme.onSurface : AppTheme.onSurfaceMuted,
+            color: highlight
+                ? (highlightColor ?? AppTheme.onSurface)
+                : AppTheme.onSurface,
             decoration:
                 strikethrough ? TextDecoration.lineThrough : TextDecoration.none,
             decorationColor: AppTheme.onSurfaceMuted,

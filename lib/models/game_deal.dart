@@ -8,6 +8,9 @@ class GameDeal {
   final String imageUrl;
   final String platform; // e.g. "PS5", "PS4"
   final bool isPsPlusBonus;
+  /// Price for PlayStation Plus Extra/Premium members. Null when the game is
+  /// not part of the PS Plus catalogue. 0 means free for members.
+  final double? psPlusPrice;
   final String description;
 
   const GameDeal({
@@ -19,6 +22,7 @@ class GameDeal {
     required this.imageUrl,
     required this.platform,
     required this.isPsPlusBonus,
+    this.psPlusPrice,
     this.description = '',
   });
 
@@ -34,6 +38,7 @@ class GameDeal {
         imageUrl: (json['imageUrl'] ?? '').toString(),
         platform: (json['platform'] ?? 'PS5').toString(),
         isPsPlusBonus: json['isPsPlusBonus'] as bool? ?? false,
+        psPlusPrice: (json['psPlusPrice'] as num?)?.toDouble(),
         description: (json['description'] ?? '').toString(),
       );
 
@@ -46,6 +51,7 @@ class GameDeal {
         'imageUrl': imageUrl,
         'platform': platform,
         'isPsPlusBonus': isPsPlusBonus,
+        'psPlusPrice': psPlusPrice,
         'description': description,
       };
 }
