@@ -97,6 +97,7 @@ class GameRepository {
     String? platform,
     int minDiscount = 0,
     bool force = false,
+    String? sourceUrl,
     int retries = 2,
   }) async {
     Exception? lastErr;
@@ -108,6 +109,36 @@ class GameRepository {
         // Force a fresh scrape on retry attempts so a transient empty
         // scrape (PS Store slow to render) is bypassed.
         if (force || attempt > 0) query['force'] = '1';
+        if (sourceUrl != null && sourceUrl.isNotEmpty) {
+          // Scrape an arbitrary PS Store URL (search/category page).
+          final enc = Uri.encodeQueryComponent(sourceUrl);
+          final uri = Uri.parse(proxyUrl)
+              .replace(path: '/scrape', queryParameters: {'url': enc, ...query});
+          final resp = await http.get(uri).timeout(const Duration(seconds: 45));
+          // (handled below — status check + parse)
+          if (resp.statusCode == 200) {
+            final json = jsonDecode(resp.body) as Map<String, dynamic>;
+            final dealsJson = (json['deals'] as List?) ?? [];
+            final deals = dealsJson
+                .map((e) => GameDeal.fromJson(e as Map<String, dynamic>))
+                .toList();
+            if (deals.isNotEmpty) {
+              return DealsResult(deals: deals, isLive: true);
+            }
+          }
+          if (attempt < retries) {
+            await Future.delayed(const Duration(seconds: 2));
+            continue;
+          }
+          final snippet = resp.body.length > 200
+              ? '${resp.body.substring(0, 200)}...'
+              : resp.body;
+          return DealsResult(
+            deals: _fallbackDeals(),
+            isLive: false,
+            error: 'Proxy returned no deals (HTTP ${resp.statusCode}). Body: $snippet',
+          );
+        }
         final uri = Uri.parse(proxyUrl).replace(path: '/deals', queryParameters: query);
         final resp = await http
             .get(uri)

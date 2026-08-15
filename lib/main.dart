@@ -30,6 +30,8 @@ class DealsHomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final sourceUrl = ref.watch(sourceUrlProvider);
+    final controller = TextEditingController(text: sourceUrl ?? '');
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -76,11 +78,68 @@ class DealsHomePage extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
               child: const DiscountFilterHeader(),
             ),
+            // ── Search bar (scrape any PS Store URL) ──
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: controller,
+                      decoration: InputDecoration(
+                        hintText: 'Plak een PS Store URL (categorie/zoekterm)',
+                        hintStyle:
+                            const TextStyle(color: AppTheme.onSurfaceMuted),
+                        prefixIcon: const Icon(Icons.search_rounded,
+                            color: AppTheme.onSurfaceMuted, size: 20),
+                        filled: true,
+                        fillColor: AppTheme.surface,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        isDense: true,
+                      ),
+                      style: const TextStyle(color: AppTheme.onSurface, fontSize: 13),
+                      onSubmitted: (value) {
+                        _applySearch(ref, value);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.arrow_forward_rounded,
+                        color: AppTheme.accent),
+                    tooltip: 'Zoek',
+                    onPressed: () => _applySearch(ref, controller.text),
+                  ),
+                  if (sourceUrl != null)
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded,
+                          color: AppTheme.onSurfaceMuted),
+                      tooltip: 'Terug naar deals',
+                      onPressed: () {
+                        ref.read(sourceUrlProvider.notifier).state = null;
+                        ref.invalidate(dealsProvider);
+                      },
+                    ),
+                ],
+              ),
+            ),
             // ── Scrollable grid ──
             const Expanded(child: DealsGrid()),
           ],
         ),
       ),
     );
+  }
+
+  void _applySearch(WidgetRef ref, String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return;
+    ref.read(sourceUrlProvider.notifier).state = trimmed;
+    ref.invalidate(dealsProvider);
   }
 }
